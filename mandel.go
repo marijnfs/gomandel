@@ -25,7 +25,7 @@ const RADIUS_MAX = 5.0
 var IT, xres, yres, aa int
 var xpos, ypos, radius float64
 var out_filename, palette_string string
-var invert, server_mode, random_radius bool
+var invert, server_mode, randomize bool
 var focusstring string
 var port string
 
@@ -43,12 +43,11 @@ func init() {
 	flag.BoolVar(&invert, "invert", false, "Inverts colouring")
 	flag.BoolVar(&server_mode, "server", false, "Enable web server mode (i.e., deliver resulting image over the web)")
 	flag.StringVar(&port, "port", "8080", "listening port when server_mode == true")
-	flag.BoolVar(&random_radius, "random", false, "Use a random value for the radius parameter")
+	flag.BoolVar(&randomize, "random", false, "Use a random value for the radius parameter")
 	flag.Parse()
 
-	if random_radius {
-		// radius = RADIUS_MIN + rand.Float64()*(RADIUS_MAX-RADIUS_MIN)
-		radius = rand.Float64() * RADIUS_MAX
+	if randomize {
+		randomize_params()
 	}
 
 	Gray = make([]color.Color, 255*3)
@@ -294,12 +293,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		case "invert":
 			invert, _ = strconv.ParseBool(v[0])
 		case "random":
-			random_radius, _ = strconv.ParseBool(v[0])
-			if random_radius {
-				// radius = RADIUS_MIN + rand.Float64()*(RADIUS_MAX-RADIUS_MIN)
-				radius = rand.Float64() * RADIUS_MAX
-				xpos = rand.Float64()
-				ypos = rand.Float64()
+			randomize, _ = strconv.ParseBool(v[0])
+			if randomize {
+				randomize_params()
 			}
 		}
 	}
@@ -307,6 +303,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	image_resized := create_image()
 	png.Encode(w, image_resized)
 
+}
+
+func randomize_params() {
+	// radius = RADIUS_MIN + rand.Float64()*(RADIUS_MAX-RADIUS_MIN)
+	radius = rand.Float64() * RADIUS_MAX
+	xpos = rand.Float64()
+	ypos = rand.Float64()
 }
 
 func main() {
