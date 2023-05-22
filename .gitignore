@@ -1,3 +1,5 @@
+gomandel
 *.png
+*.jpg
 go.sum
 go.mod
