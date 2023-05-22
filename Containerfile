@@ -1,29 +1,17 @@
 
-# Build minimal image based on https://github.com/mr-pascal/medium-go-docker/blob/master/Dockerfile
+FROM ubi8/go-toolset:1.18 as build
 
-FROM golang:1.18 as builder
-RUN mkdir /app
-WORKDIR /app
-COPY go.mod .
-
-### Setting a proxy for downloading modules
-ENV GOPROXY https://proxy.golang.org,direct
-
-### Download Go application module dependencies
-RUN go mod download
-
-### Copy actual source code for building the application
+### Copy source code for building the application
 COPY . .
 
-### CGO has to be disabled cross platform builds
-### Otherwise the application won't be able to start
-ENV CGO_ENABLED=0
+### Download dependencies and build
+RUN go mod init gomandel && \
+    go mod tidy -e && \
+    go build . 
 
-RUN GOOS=linux go build ./mandel.go
+FROM ubi8/ubi-micro
+COPY --from=build /opt/app-root/src/gomandel .
 
-FROM scratch
-WORKDIR /app
-COPY --from=builder /app/mandel .
 EXPOSE 8080
-ENTRYPOINT ["/app/mandel", "--server"]
+ENTRYPOINT ["./gomandel", "--server"]
 CMD [ "--xres=1500", "--yres=900" ]
