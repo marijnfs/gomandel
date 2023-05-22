@@ -3,3 +3,4 @@ gomandel
 *.jpg
 go.sum
 go.mod
+.vscode
