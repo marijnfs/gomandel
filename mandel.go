@@ -19,8 +19,8 @@ import (
 	"github.com/nfnt/resize"
 )
 
-// const RADIUS_MIN = 0.05
-const RADIUS_MAX = 5.0
+const RADIUS_MIN = 0.0005
+const RADIUS_MAX = 1.0
 
 var IT, xres, yres, aa int
 var xpos, ypos, radius float64
@@ -280,34 +280,35 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			yres, _ = strconv.Atoi(v[0])
 		case "aa":
 			aa, _ = strconv.Atoi(v[0])
-		case "xpos":
-			xpos, _ = strconv.ParseFloat(v[0], 64)
-		case "ypos":
-			ypos, _ = strconv.ParseFloat(v[0], 64)
-		case "radius":
-			radius, _ = strconv.ParseFloat(v[0], 64)
+		// // case "xpos":
+		// // 	xpos, _ = strconv.ParseFloat(v[0], 64)
+		// // case "ypos":
+		// // 	ypos, _ = strconv.ParseFloat(v[0], 64)
+		// case "radius":
+		// 	radius, _ = strconv.ParseFloat(v[0], 64)
 		case "palette":
 			palette_string = v[0]
 		case "focus":
 			focusstring = v[0]
 		case "invert":
 			invert, _ = strconv.ParseBool(v[0])
-		case "random":
-			randomize, _ = strconv.ParseBool(v[0])
-			if randomize {
-				randomize_params()
-			}
+		// case "random":
+		// 	randomize, _ = strconv.ParseBool(v[0])
+		// 	if randomize {
+		// 		randomize_params()
+		// 	}
 		}
 	}
 
+	randomize_params()
 	image_resized := create_image()
 	png.Encode(w, image_resized)
 
 }
 
 func randomize_params() {
-	// radius = RADIUS_MIN + rand.Float64()*(RADIUS_MAX-RADIUS_MIN)
-	radius = rand.Float64() * RADIUS_MAX
+	radius = RADIUS_MIN + rand.Float64()*(RADIUS_MAX-RADIUS_MIN)
+	// radius = rand.Float64() * RADIUS_MAX
 	xpos = rand.Float64()
 	ypos = rand.Float64()
 }
